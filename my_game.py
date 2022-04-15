@@ -2,18 +2,6 @@
 
 import doctest
 
-class Location:
-    """
-    Location of Minister of Defense of Ukraine
-    """
-    def __init__(self, name, description) -> None:
-        """init"""
-        self.name = name
-        self.description = description
-        self.link = {}
-        self.character = None
-
-
 class Country:
     """
     country class
@@ -43,11 +31,11 @@ class Country:
         """
         if weakness == self.weakness:
             print(f"Браво! Тобі вдалось вмовити {self.name}.")
-            print("Україна отримуєш таку допомогу")
+            print("Україна отримує таку допомогу")
             for i in self.influence:
                 print(f"* {i}")
             return self.influence
-        return f"тобі не вдалось домовитись з {self.name}"
+        return None
 
 class Friend(Country):
     """
@@ -73,37 +61,18 @@ class Superenemy(Enemy):
     def __init__(self, name, info) -> None:
         super().__init__(name, info)
         self.enemy = True
-        self.hit_points = 100
-        self.num_of_weakness = 0
+        self.hit_points = 110
 
-    def add_weakness(self, weakness: dict):
-        """
-        function add weakness
-        """
-        self.weakness = weakness
-        for i in weakness.keys():
-            self.num_of_weakness += weakness[i]
-
-    def hit_enemy(self, weapon: str):
+    def hit_enemy(self):
         """
         hits enemy
         """
-        self.weakness[weapon] -= 1
+        self.hit_points -= 10
+        print("Ти завдав шкоди клятій росії на 10 балів, але треба ще!!!")
+        print(f"Залишилось ще {self.hit_points}")
         # self.hit_points
 
-    def check_weapon(self, weapon: str):
-        """
-        check if the weapon is a weakness
-        """
-        if weapon in self.weakness:
-            return True
-        return False
 
-    def get_hp(self):
-        """
-        returns hp
-        """
-        return self.hit_points
 
 
 
@@ -116,14 +85,15 @@ class Ukraine(Friend):
         self.influence = {}
         self.enemy = False
 
-    def add_influence(self, influence):
+    def add_influence(self, influence: list):
         """
         function add influences
         """
-        if influence not in self.influence:
-            self.influence[influence] = 1
-        else:
-            self.influence[influence] += 1
+        for i in influence:
+            if i not in self.influence:
+                self.influence[i] = 1
+            else:
+                self.influence[i] += 1
 
     def check_influence(self, influence):
         """
@@ -137,6 +107,9 @@ class Ukraine(Friend):
         """
         returns all
         """
-        print("Ви маєте таку зброю:")
-        for i in self.influence:
-            print(i, " - ", self.influence[i], " к-сть")
+        if not bool(self.influence):
+            return "Україна ще не має дипломатичної зброї"
+        else:
+            res = "Ви маєте таку дипломатичну зброю:\n"
+            for i in self.influence:
+                res += f"{i} - {self.influence[i]} к-сть"

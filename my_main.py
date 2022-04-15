@@ -1,5 +1,7 @@
 """my main"""
 
+from joblib import PrintTime
+from regex import P
 from my_game import *
 
 info_ua = """\
@@ -65,22 +67,26 @@ usa.add_influence("javelin")
 usa.add_influence("танки")
 usa.add_influence("санкції")
 usa.add_influence("fighter jet")
+usa.add_weakness('permission for the usa')
 
-uk = Friend("Великобританія", info_uk)
+uk = Friend("Велика Британія", info_uk)
 uk.add_influence("permission for the usa")
 uk.add_influence("санкції")
 uk.add_influence("fighter jet")
+uk.add_weakness('permission for the uk')
 
 baltic = Friend("Країни Балтії", info_baltic)
 baltic.add_influence("permission for the uk")
 baltic.add_influence("санкції")
 baltic.add_influence("javelin")
+baltic.add_weakness('permission for baltic')
 
 poland = Friend("Польща", info_poland)
 poland.add_influence("permission for baltic")
 poland.add_influence("bananas")
 poland.add_influence("танки")
 poland.add_influence("санкції")
+baltic.add_weakness('інформація про звірства росіян')
 
 belarus = Enemy("Білорусь", info_belarus)
 belarus.add_weakness("бульба")
@@ -88,7 +94,7 @@ belarus.add_influence("fighter jet")
 belarus.add_influence("танки")
 
 russia = Superenemy("росія", info_russia)
-russia.add_weakness({"Javelin":2, "танки":3, "санкції":5, "fighter jet":3})
+# russia.add_weakness({"Javelin":2, "танки":3, "санкції":5, "fighter jet":3})
 
 zimbabwe = Enemy("Зімба́бве", info_zimbabwe)
 zimbabwe.add_weakness("банани")
@@ -101,18 +107,80 @@ china.add_influence("санкції")
 
 current_room = ukraine
 backpack = []
-all = [usa, uk, baltic, poland, zimbabwe, china, belarus, russia, ukraine]
+all_counties = [usa, uk, baltic, poland, zimbabwe, china, belarus, russia, ukraine]
 dead = False
 
+menu = """
+1 - Вибрати іншу країну
+2 - Атакувати росію(автоматична зміна поточної держави)
+3 - вибрати річ для дипломатії
+4 - дізнатись в якій ми зараз країні
+5 - завершити гру"""
+print("Зараз ти друже в Україні")
+print(current_room.info)
 while dead == False:
-
-    print(current_room.info)
-    print("\nТи можеш вибрати, яку з цих країн:")
-    for i in all:
-        print("* ", i.name)
+    print(menu)
     command = input(">>> ")
-    for i in all:
-        if i.name == command:
+    if command == "1":
+        print("\nТи можеш вибрати, яку з цих країн:")
+        for i in all_counties:
+            print("* ", i.name)
+        command = input(">>> ")
+        new_county = False
+        for i in all_counties:
+            if i.name == command:
+                current_room = i
+                print(f"Зараз ти друже в {command}")
+                new_county = True
+        if not new_county:
+            print("Нема такої країни спробуй знову")
+    elif command == "3":
+        part = ukraine.return_all()
+        if part == "Україна ще не має дипломатичної зброї":
+            print("Україна ще не має дипломатичної зброї")
+        else:
+            print(part)
+            print("вибери зброю для дипломатії")
+            command = input(">>> ")
+            part = current_room.check_weakness(command)
+            if part:
+                ukraine.add_influence(part)
+            else:
+                print(f"Тобі не вдалось домовитись з {current_room.name}")
+    elif command == "2":
+        current_room = russia
+        part = ukraine.return_all()
+        if part == "Україна ще не має дипломатичної зброї":
+            print("Україна ще не має дипломатичної зброї")
+        else:
+            print(part)
+            print("вибери зброю для дипломатії")
+            command = input(">>> ")
+            part = ukraine.check_influence(command)
+            if part:
+                current_room.hit_enemy()
+            else:
+                print("Щось пішло не так! Можливо, це неправильний ввід даних!")
+    elif command == "4":
+        print(current_room)
+    elif command == "5":
+        break
+    else:
+        print("Щось пішло не так. Спробуй знову")
+
+    # print(current_room.info)
+    # print("\nТи можеш вибрати, яку з цих країн:")
+    # for i in all:
+    #     print("* ", i.name)
+    
+    # command = input(">>> ")
+    # for i in all:
+    #     if i.name == command:
+    #         current_room = i
+    #         print("Кімнату змінено!\n")
+    #         break
+        
+    
             
                 # inhabitant = current_room.get_character()
                 # if inhabitant is not None:
