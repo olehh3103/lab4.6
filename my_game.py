@@ -1,10 +1,14 @@
 """my game"""
 
 import doctest
+import copy
 
 class Country:
     """
     country class
+    >>> me = Country("fghjk", "ooo")
+    >>> me.info
+    'ooo'
     """
     def __init__(self, name, info) -> None:
         self.name = name
@@ -34,7 +38,9 @@ class Country:
             print("Україна отримує таку допомогу")
             for i in self.influence:
                 print(f"* {i}")
-            return self.influence
+            part = copy.deepcopy(self.influence)
+            self.influence = []
+            return part
         return None
 
 class Friend(Country):
@@ -68,12 +74,14 @@ class Superenemy(Enemy):
         hits enemy
         """
         self.hit_points -= 10
+        if self.hit_points == 0:
+            print('Ти переміг кляту росію')
+            print('you won\ngane over!!!')
+            return True
         print("Ти завдав шкоди клятій росії на 10 балів, але треба ще!!!")
         print(f"Залишилось ще {self.hit_points}")
+        return False
         # self.hit_points
-
-
-
 
 
 class Ukraine(Friend):
@@ -85,15 +93,18 @@ class Ukraine(Friend):
         self.influence = {}
         self.enemy = False
 
-    def add_influence(self, influence: list):
+    def add_influence(self, influence):
         """
         function add influences
         """
-        for i in influence:
-            if i not in self.influence:
-                self.influence[i] = 1
-            else:
-                self.influence[i] += 1
+        if isinstance(influence, str):
+            self.influence[influence] = 1
+        else:
+            for i in influence:
+                if i not in self.influence:
+                    self.influence[i] = 1
+                else:
+                    self.influence[i] += 1
 
     def check_influence(self, influence):
         """
@@ -109,7 +120,19 @@ class Ukraine(Friend):
         """
         if not bool(self.influence):
             return "Україна ще не має дипломатичної зброї"
+        res = "Ви маєте таку дипломатичну зброю:\n"
+        for i in self.influence:
+            res += f"{i} - {self.influence[i]} к-сть\n"
+        return res
+
+    def delete(self, command):
+        """
+        delete function
+        """
+        if self.influence[command] == 1:
+            del self.influence[command]
         else:
-            res = "Ви маєте таку дипломатичну зброю:\n"
-            for i in self.influence:
-                res += f"{i} - {self.influence[i]} к-сть"
+            self.influence[command] -= 1
+
+if __name__ == "__main__":
+    print(doctest.testmod())

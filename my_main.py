@@ -1,7 +1,5 @@
 """my main"""
 
-from joblib import PrintTime
-from regex import P
 from my_game import *
 
 info_ua = """\
@@ -61,6 +59,8 @@ info_china = """\
 росією і помагає їй.
 Знайди те, що зможе зупинити Китай помагати росії."""
 ukraine = Ukraine("Україна", info_ua)
+ukraine.add_influence('інформація про звірства росіян')
+
 
 usa = Friend("США", info_us)
 usa.add_influence("javelin")
@@ -83,10 +83,10 @@ baltic.add_weakness('permission for baltic')
 
 poland = Friend("Польща", info_poland)
 poland.add_influence("permission for baltic")
-poland.add_influence("bananas")
+poland.add_influence("банани")
 poland.add_influence("танки")
 poland.add_influence("санкції")
-baltic.add_weakness('інформація про звірства росіян')
+poland.add_weakness('інформація про звірства росіян')
 
 belarus = Enemy("Білорусь", info_belarus)
 belarus.add_weakness("бульба")
@@ -94,7 +94,7 @@ belarus.add_influence("fighter jet")
 belarus.add_influence("танки")
 
 russia = Superenemy("росія", info_russia)
-# russia.add_weakness({"Javelin":2, "танки":3, "санкції":5, "fighter jet":3})
+russia.add_weakness(["javelin", "танки", "санкції", "fighter jet"])
 
 zimbabwe = Enemy("Зімба́бве", info_zimbabwe)
 zimbabwe.add_weakness("банани")
@@ -116,7 +116,7 @@ menu = """
 3 - вибрати річ для дипломатії
 4 - дізнатись в якій ми зараз країні
 5 - завершити гру"""
-print("Зараз ти друже в Україні")
+print("Зараз ти, друже, в Україні")
 print(current_room.info)
 while dead == False:
     print(menu)
@@ -130,7 +130,8 @@ while dead == False:
         for i in all_counties:
             if i.name == command:
                 current_room = i
-                print(f"Зараз ти друже в {command}")
+                print(f"Зараз ти, друже, в {command}")
+                print(current_room.info)
                 new_county = True
         if not new_county:
             print("Нема такої країни спробуй знову")
@@ -143,8 +144,9 @@ while dead == False:
             print("вибери зброю для дипломатії")
             command = input(">>> ")
             part = current_room.check_weakness(command)
-            if part:
+            if part != None:
                 ukraine.add_influence(part)
+                ukraine.delete(command)
             else:
                 print(f"Тобі не вдалось домовитись з {current_room.name}")
     elif command == "2":
@@ -158,172 +160,18 @@ while dead == False:
             command = input(">>> ")
             part = ukraine.check_influence(command)
             if part:
-                current_room.hit_enemy()
+                if command in current_room.weakness:
+                    result = current_room.hit_enemy()
+                    if result:
+                        break
+                    ukraine.delete(command)
+                else:
+                    print(f"{command} - це не зброя для росії(((")
             else:
                 print("Щось пішло не так! Можливо, це неправильний ввід даних!")
     elif command == "4":
-        print(current_room)
+        print(current_room.name)
     elif command == "5":
         break
     else:
         print("Щось пішло не так. Спробуй знову")
-
-    # print(current_room.info)
-    # print("\nТи можеш вибрати, яку з цих країн:")
-    # for i in all:
-    #     print("* ", i.name)
-    
-    # command = input(">>> ")
-    # for i in all:
-    #     if i.name == command:
-    #         current_room = i
-    #         print("Кімнату змінено!\n")
-    #         break
-        
-    
-            
-                # inhabitant = current_room.get_character()
-                # if inhabitant is not None:
-                #     inhabitant.describe()
-
-                # item = current_room.get_item()
-                # if item is not None:
-                #     item.describe()
-
-                # command = input("> ")
-
-                # if command in ["north", "south", "east", "west"]:
-                #     # Move in the given direction
-                #     current_room = current_room.move(command)
-                # elif command == "talk":
-                #     # Talk to the inhabitant - check whether there is one!
-                #     if inhabitant is not None:
-                #         inhabitant.talk()
-                # elif command == "fight":
-                #     if inhabitant is not None:
-                #         # Fight with the inhabitant, if there is one
-                #         print("What will you fight with?")
-                #         fight_with = input()
-
-                #         # Do I have this item?
-                #         if fight_with in backpack:
-
-                #             if inhabitant.fight(fight_with) == True:
-                #                 # What happens if you win?
-                #                 print("Hooray, you won the fight!")
-                #                 current_room.character = None
-                #                 if inhabitant.get_defeated() == 2:
-                #                     print("Congratulations, you have vanquished the enemy horde!")
-                #                     dead = True
-                #             else:
-                #                 # What happens if you lose?
-                #                 print("Oh dear, you lost the fight.")
-                #                 print("That's the end of the game")
-                #                 dead = True
-                #         else:
-                #             print("You don't have a " + fight_with)
-                #     else:
-                #         print("There is no one here to fight with")
-                # elif command == "take":
-                #     if item is not None:
-                #         print("You put the " + item.get_name() + " in your backpack")
-                #         backpack.append(item.get_name())
-                #         current_room.set_item(None)
-                #     else:
-                #         print("There's nothing here to take!")
-                # else:
-                #     print("I don't know how to " + command)
-
-# kitchen = game.Room("Kitchen")
-# kitchen.set_description("A dank and dirty room buzzing with flies.")
-
-# dining_hall = game.Room("Dining Hall")
-# dining_hall.set_description("A large room with ornate golden decorations on each wall.")
-
-# ballroom = game.Room("Ballroom")
-# ballroom.set_description("A vast room with a shiny wooden floor. Huge candlesticks guard the entrance.")
-
-# kitchen.link_room(dining_hall, "south")
-# dining_hall.link_room(kitchen, "north")
-# dining_hall.link_room(ballroom, "west")
-# ballroom.link_room(dining_hall, "east")
-
-# dave = game.Enemy("Dave", "A smelly zombie")
-# dave.set_conversation("What's up, dude! I'm hungry.")
-# dave.set_weakness("cheese")
-# dining_hall.set_character(dave)
-
-# tabitha = game.Enemy("Tabitha", "An enormous spider with countless eyes and furry legs.")
-# tabitha.set_conversation("Sssss....I'm so bored...")
-# tabitha.set_weakness("book")
-# ballroom.set_character(tabitha)
-
-# cheese = game.Item("cheese")
-# cheese.set_description("A large and smelly block of cheese")
-# ballroom.set_item(cheese)
-
-# book = game.Item("book")
-# book.set_description("A really good book entitled 'Knitting for dummies'")
-# dining_hall.set_item(book)
-
-# current_room = kitchen
-# backpack = []
-
-# dead = False
-
-# while dead == False:
-
-#     print("\n")
-#     current_room.get_details()
-
-#     inhabitant = current_room.get_character()
-#     if inhabitant is not None:
-#         inhabitant.describe()
-
-#     item = current_room.get_item()
-#     if item is not None:
-#         item.describe()
-
-#     command = input("> ")
-
-#     if command in ["north", "south", "east", "west"]:
-#         # Move in the given direction
-#         current_room = current_room.move(command)
-#     elif command == "talk":
-#         # Talk to the inhabitant - check whether there is one!
-#         if inhabitant is not None:
-#             inhabitant.talk()
-#     elif command == "fight":
-#         if inhabitant is not None:
-#             # Fight with the inhabitant, if there is one
-#             print("What will you fight with?")
-#             fight_with = input()
-
-#             # Do I have this item?
-#             if fight_with in backpack:
-
-#                 if inhabitant.fight(fight_with) == True:
-#                     # What happens if you win?
-#                     print("Hooray, you won the fight!")
-#                     current_room.character = None
-#                     if inhabitant.get_defeated() == 2:
-#                         print("Congratulations, you have vanquished the enemy horde!")
-#                         dead = True
-#                 else:
-#                     # What happens if you lose?
-#                     print("Oh dear, you lost the fight.")
-#                     print("That's the end of the game")
-#                     dead = True
-#             else:
-#                 print("You don't have a " + fight_with)
-#         else:
-#             print("There is no one here to fight with")
-#     elif command == "take":
-#         if item is not None:
-#             print("You put the " + item.get_name() + " in your backpack")
-#             backpack.append(item.get_name())
-#             current_room.set_item(None)
-#         else:
-#             print("There's nothing here to take!")
-#     else:
-#         print("I don't know how to " + command)
